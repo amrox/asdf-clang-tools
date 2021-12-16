@@ -3,7 +3,8 @@
 set -euo pipefail
 
 # TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for clang-tools-static.
-GH_REPO="https://github.com/amrox/clang-tools-static"
+GH_REPO="muttleyxd/clang-tools-static-binaries"
+GH_REPO_URL="https://github.com/${GH_REPO}"
 TOOL_NAME="clang-tools-static"
 TOOL_TEST="clang-format"
 
@@ -25,15 +26,67 @@ sort_versions() {
 }
 
 list_github_tags() {
-  git ls-remote --tags --refs "$GH_REPO" |
+  git ls-remote --tags --refs "$GH_REPO_URL" |
     grep -o 'refs/tags/.*' | cut -d/ -f3- |
     sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
 }
 
+fetch_all_assets() {
+  curl -H "Accept: application/vnd.github.v3+json" \
+    https://api.github.com/repos/${GH_REPO}/releases |
+    jq -r '.[0].assets[] | "\(.name) \(.browser_download_url)"'
+}
+
+get_kernel() {
+
+  local kernel
+  kernel=$(uname -s)
+
+  case $kernel in
+  Darwin)
+    echo -n "macosx"
+    ;;
+  Linux)
+    echo -n "linux"
+    ;;
+  esac
+
+  echo -n ""
+}
+
+get_arch() {
+  local arch
+  arch=$(uname -m)
+
+  case $arch in
+  x86_64)
+    platform="amd64"
+    ;;
+  *)
+    fail "Unsupported arch $arch"
+    exit 1
+    ;;
+  esac
+
+  echo -n "$arch"
+
+}
+
 list_all_versions() {
-  # TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-  # Change this function if clang-tools-static has other means of determining installable versions.
-  list_github_tags
+
+  local toolname=$1
+
+  local platform arch
+  platform=$(get_platform)
+  arch=$(get_arch)
+
+  fetch_all_assets |
+    grep "$toolname" |
+    grep "$platform" |
+    grep "$arch" |
+    grep -v "sha" |
+    awk '{print $1}' |
+    sed "s/^${toolname}-\(.*\)_.*/\1/"
 }
 
 download_release() {
@@ -42,7 +95,7 @@ download_release() {
   filename="$2"
 
   # TODO: Adapt the release URL convention for clang-tools-static
-  url="$GH_REPO/archive/v${version}.tar.gz"
+  url="$GH_REPO_URL/archive/v${version}.tar.gz"
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
