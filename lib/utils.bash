@@ -16,6 +16,17 @@ fail() {
   exit 1
 }
 
+validate_deps() {
+
+  deps=(jq curl)
+
+  for d in "${deps[@]}"; do
+    if ! command -v "$d" >/dev/null; then
+      fail "Required dependency '$d' not found."
+    fi
+  done
+}
+
 curl_opts=(-fsSL)
 
 # NOTE: You might want to remove this if clang-tools-static is not hosted on GitHub releases.
@@ -38,36 +49,6 @@ fetch_all_assets() {
   curl -s -H "Accept: application/vnd.github.v3+json" \
     https://api.github.com/repos/${GH_REPO}/releases |
     jq -r '.[0].assets[] | "\(.name) \(.browser_download_url)"'
-}
-
-get_kernel() {
-
-  local kernel
-  kernel=$(uname -s)
-
-  case $kernel in
-  Darwin)
-    echo -n "macosx"
-    ;;
-  Linux)
-    echo -n "linux"
-    ;;
-  esac
-
-  echo -n ""
-}
-
-get_arch() {
-  local arch
-  arch=$(uname -m)
-
-  case $arch in
-  x86_64)
-    echo -n "amd64"
-    ;;
-  esac
-
-  echo -n "$"
 }
 
 validate_platform() {
