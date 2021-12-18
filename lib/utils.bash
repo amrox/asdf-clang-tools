@@ -7,6 +7,9 @@ GH_REPO="muttleyxd/clang-tools-static-binaries"
 GH_REPO_URL="https://github.com/${GH_REPO}"
 TOOL_NAME="clang-tools-static"
 TOOL_TEST="clang-format"
+USE_KERNEL=
+USE_ARCH=
+USE_PLATFORM=
 
 fail() {
   echo -e "asdf-$TOOL_NAME: $*"
@@ -32,7 +35,7 @@ list_github_tags() {
 }
 
 fetch_all_assets() {
-  curl -H "Accept: application/vnd.github.v3+json" \
+  curl -s -H "Accept: application/vnd.github.v3+json" \
     https://api.github.com/repos/${GH_REPO}/releases |
     jq -r '.[0].assets[] | "\(.name) \(.browser_download_url)"'
 }
@@ -60,30 +63,54 @@ get_arch() {
 
   case $arch in
   x86_64)
-    platform="amd64"
-    ;;
-  *)
-    fail "Unsupported arch $arch"
-    exit 1
+    echo -n "amd64"
     ;;
   esac
 
-  echo -n "$arch"
+  echo -n "$"
+}
 
+validate_platform() {
+
+  if [ -n "${USE_PLATFORM}" ]; then
+    return
+  fi
+
+  local kernel arch
+  kernel=$(uname -s)
+  arch=$(uname -m)
+
+  case $kernel in
+  Darwin)
+    USE_KERNEL=macosx
+    USE_ARCH=amd64
+    ;;
+  Linux)
+    case $arch in
+    x86_64)
+      USE_KERNEL=linux
+      USE_ARCH=amd64
+      ;;
+    esac
+    ;;
+  esac
+
+  if [ -z "${USE_KERNEL}" ] || [ -z "${USE_ARCH}" ]; then
+    fail "Unsupported platform '${kernel}-${arch}'"
+  fi
+
+  USE_PLATFORM="${USE_KERNEL}-${USE_ARCH}"
 }
 
 list_all_versions() {
 
-  local toolname=$1
+  validate_platform
 
-  local platform arch
-  platform=$(get_platform)
-  arch=$(get_arch)
+  local toolname=$1
 
   fetch_all_assets |
     grep "$toolname" |
-    grep "$platform" |
-    grep "$arch" |
+    grep "$USE_PLATFORM" |
     grep -v "sha" |
     awk '{print $1}' |
     sed "s/^${toolname}-\(.*\)_.*/\1/"
