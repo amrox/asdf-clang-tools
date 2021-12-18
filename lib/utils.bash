@@ -10,6 +10,7 @@ TOOL_TEST="clang-format"
 USE_KERNEL=
 USE_ARCH=
 USE_PLATFORM=
+YES_REGEX='^[Yy](E|e)?(S|s)?$'
 
 fail() {
   echo -e "asdf-$TOOL_NAME: $*"
@@ -25,6 +26,10 @@ validate_deps() {
       fail "Required dependency '$d' not found."
     fi
   done
+}
+
+log() {
+  echo -e "asdf-$TOOL_NAME: $*"
 }
 
 curl_opts=(-fsSL)
@@ -53,7 +58,7 @@ fetch_all_assets() {
 
 validate_platform() {
 
-  if [ -n "${USE_PLATFORM}" ]; then
+  if [ -n "$USE_PLATFORM" ]; then
     return
   fi
 
@@ -98,38 +103,87 @@ list_all_versions() {
 }
 
 download_release() {
-  local version filename url
-  version="$1"
-  filename="$2"
+  local toolname version filename url
+  toolname="$1"
+  version="$2"
+  filename="$3"
 
-  # TODO: Adapt the release URL convention for clang-tools-static
-  url="$GH_REPO_URL/archive/v${version}.tar.gz"
+  validate_platform
 
-  echo "* Downloading $TOOL_NAME release $version..."
-  curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
+  # TODO: split output without piping to awk
+  url=$(fetch_all_assets |
+    grep "^${toolname}-${version}_${USE_PLATFORM}\s" |
+    awk '{print $2}')
+
+  (
+    cd "${ASDF_DOWNLOAD_PATH}" || exit 1
+
+    echo "* Downloading $toolname release $version..."
+    #curl "${curl_opts[@]}" -o "$filename" "$url" || fail "Could not download $url"
+    curl "${curl_opts[@]}" -O "$url" || fail "Could not download $url"
+    # TODO: range request ('-C -') does not seem to work
+
+    # Download checksum
+    #curl "${curl_opts[@]}" -o "${filename}.sha512sum" "${url}.sha512sum" || fail "Could not download $url"
+    curl "${curl_opts[@]}" -O "${url}.sha512sum" || fail "Could not download $url"
+  )
 }
 
 install_version() {
-  local install_type="$1"
-  local version="$2"
-  local install_path="$3"
+  local toolname="$1"
+  local install_type="$2"
+  local version="$3"
+  local install_path="$4"
+
+  validate_platform
 
   if [ "$install_type" != "version" ]; then
     fail "asdf-$TOOL_NAME supports release installs only"
   fi
 
-  (
-    mkdir -p "$install_path"
-    cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+  if command -v sha512sum >/dev/null; then
+    (
+      log "Checking sha512 sum..."
+      cd "${ASDF_DOWNLOAD_PATH}" || exit 1
+      sha512sum -c ./*.sha512sum
+    )
+  else
+    log "WARNING: sha512sum program not found - unable to checksum. Proceed with caution."
+  fi
 
-    # TODO: Asert clang-tools-static executable exists.
-    local tool_cmd
-    tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
+  (
+    local asset_path full_tool_cmd tool_cmd
+    asset_path="$install_path/assets"
+
+    mkdir -p "$asset_path"
+    cp -r "$ASDF_DOWNLOAD_PATH"/* "$asset_path"
+
+    # TODO: detect this instead of hard-coding in case the format changes?
+    full_tool_cmd=${toolname}-${version}_${USE_PLATFORM}
+    tool_cmd="$(echo "$toolname" | cut -d' ' -f1)"
+
+    chmod +x "${asset_path}/${full_tool_cmd}"
+
+    mkdir -p "${install_path}/bin" || true
+    ln -s "${asset_path}/${full_tool_cmd}" "$install_path/bin/$tool_cmd"
+
+    if [ "$USE_KERNEL" == "macosx" ]; then
+      log "$toolname needs to be un-quarantined to run:\n\n"
+      echo -e "  xattr -dr com.apple.quarantine \"${asset_path}/${full_tool_cmd}\""
+      echo -e -n "\n\nProceed? [y/N] "
+      read -r reply
+      if [[ $reply =~ $YES_REGEX ]]; then
+        xattr -dr com.apple.quarantine "${asset_path}/${full_tool_cmd}"
+      else
+        exit 1
+      fi
+    fi
+
     test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/bin/$tool_cmd to be executable."
 
-    echo "$TOOL_NAME $version installation was successful!"
+    echo "$toolname $version installation was successful!"
   ) || (
     rm -rf "$install_path"
-    fail "An error ocurred while installing $TOOL_NAME $version."
+    fail "An error ocurred while installing $toolname $version."
   )
 }
