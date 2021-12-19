@@ -97,10 +97,9 @@ list_all_versions() {
 }
 
 download_release() {
-  local toolname version filename url
+  local toolname version url
   toolname="$1"
   version="$2"
-  filename="$3"
 
   validate_platform
 
@@ -113,12 +112,10 @@ download_release() {
     cd "${ASDF_DOWNLOAD_PATH}" || exit 1
 
     echo "* Downloading $toolname release $version..."
-    #curl "${curl_opts[@]}" -o "$filename" "$url" || fail "Could not download $url"
     curl "${curl_opts[@]}" -O "$url" || fail "Could not download $url"
     # TODO: range request ('-C -') does not seem to work
 
     # Download checksum
-    #curl "${curl_opts[@]}" -o "${filename}.sha512sum" "${url}.sha512sum" || fail "Could not download $url"
     curl "${curl_opts[@]}" -O "${url}.sha512sum" || fail "Could not download $url"
   )
 }
