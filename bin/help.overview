@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+echo "asdf plugin for clang tools - clang-format, clang-tidy, clang-query"
