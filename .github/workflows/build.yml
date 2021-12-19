@@ -19,4 +19,5 @@ jobs:
       - name: asdf_plugin_test
         uses: asdf-vm/actions/plugin-test@v1
         with:
-          command: clang-format
+          plugin: clang-format
+          command: clang-format --version
