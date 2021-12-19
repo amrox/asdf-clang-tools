@@ -45,12 +45,6 @@ sort_versions() {
     LC_ALL=C sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
-list_github_tags() {
-  git ls-remote --tags --refs "$GH_REPO_URL" |
-    grep -o 'refs/tags/.*' | cut -d/ -f3- |
-    sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
-}
-
 fetch_all_assets() {
   curl -s -H "Accept: application/vnd.github.v3+json" \
     https://api.github.com/repos/${GH_REPO}/releases |
@@ -58,7 +52,6 @@ fetch_all_assets() {
 }
 
 validate_platform() {
-
   if [ -n "$USE_PLATFORM" ]; then
     return
   fi
