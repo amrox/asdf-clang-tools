@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for clang-tools-static.
+# Settings
+ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE=${ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE:-0}
+
 GH_REPO="muttleyxd/clang-tools-static-binaries"
 GH_REPO_URL="https://github.com/${GH_REPO}"
 PLUGIN_NAME="clang-tools-static"
@@ -167,14 +169,20 @@ install_version() {
     ln -s "${asset_path}/${full_tool_cmd}" "$install_path/bin/$tool_cmd"
 
     if [ "$USE_KERNEL" == "macosx" ]; then
-      log "$toolname needs to be un-quarantined to run:\n\n"
-      echo -e "  xattr -dr com.apple.quarantine \"${asset_path}/${full_tool_cmd}\""
-      echo -e -n "\n\nProceed? [y/N] "
-      read -r reply
-      if [[ $reply =~ $YES_REGEX ]]; then
-        xattr -dr com.apple.quarantine "${asset_path}/${full_tool_cmd}"
-      else
-        exit 1
+      if [ "$ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE" != 1 ]; then
+        log "$toolname needs to be de-quarantined to run:\n\n"
+        echo -e "  xattr -dr com.apple.quarantine \"${asset_path}/${full_tool_cmd}\""
+        echo -e -n "\n\nProceed? [y/N] "
+        read -r reply
+        if [[ $reply =~ $YES_REGEX ]]; then
+          ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE=1
+        else
+          exit 1
+        fi
+
+        if [ "$ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE" == 1 ]; then
+          xattr -dr com.apple.quarantine "${asset_path}/${full_tool_cmd}"
+        fi
       fi
     fi
 
