@@ -5,15 +5,14 @@ set -euo pipefail
 # TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for clang-tools-static.
 GH_REPO="muttleyxd/clang-tools-static-binaries"
 GH_REPO_URL="https://github.com/${GH_REPO}"
-TOOL_NAME="clang-tools-static"
-TOOL_TEST="clang-format"
+PLUGIN_NAME="clang-tools-static"
 USE_KERNEL=
 USE_ARCH=
 USE_PLATFORM=
 YES_REGEX='^[Yy](E|e)?(S|s)?$'
 
 fail() {
-  echo -e "asdf-$TOOL_NAME: $*"
+  echo -e "asdf-$PLUGIN_NAME: $*"
   exit 1
 }
 
@@ -29,7 +28,7 @@ validate_deps() {
 }
 
 log() {
-  echo -e "asdf-$TOOL_NAME: $*"
+  echo -e "asdf-$PLUGIN_NAME: $*"
 }
 
 curl_opts=(-fsSL)
@@ -138,7 +137,7 @@ install_version() {
   validate_platform
 
   if [ "$install_type" != "version" ]; then
-    fail "asdf-$TOOL_NAME supports release installs only"
+    fail "asdf-$PLUGIN_NAME supports release installs only"
   fi
 
   if command -v sha512sum >/dev/null; then
