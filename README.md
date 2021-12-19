@@ -3,44 +3,60 @@
 # asdf-clang-tools [![Build](https://github.com/amrox/asdf-clang-tools/actions/workflows/build.yml/badge.svg)](https://github.com/amrox/asdf-clang-tools/actions/workflows/build.yml) [![Lint](https://github.com/amrox/asdf-clang-tools/actions/workflows/lint.yml/badge.svg)](https://github.com/amrox/asdf-clang-tools/actions/workflows/lint.yml)
 
 
-[clang-tools](https://github.com/amrox/clang-tools) plugin for the [asdf version manager](https://asdf-vm.com).
+[clang-tools](https://github.com/muttleyxd/clang-tools-static-binaries) plugin for the [asdf version manager](https://asdf-vm.com).
 
 </div>
 
-# Contents
+# Overview
 
-- [Dependencies](#dependencies)
-- [Install](#install)
-- [Why?](#why)
-- [Contributing](#contributing)
-- [License](#license)
+This is an asdf plugin for installing several clang tools:
+
+- clang-format
+- clang-query
+- clang-tidy
+
+This plugin uses the pre-compiled binaries from the very handy [muttleyxd/clang-tools-static-binaries](https://github.com/muttleyxd/clang-tools-static-binaries) repo.
+
+## Caveats
+
+- Again, the source for these binaries is currently [muttleyxd/clang-tools-static-binaries](https://github.com/muttleyxd/clang-tools-static-binaries). Please make sure you trust that repository.
+- Only Intel (`x86_64`/`amd64`) binaries are currently provided.
+  - These binaries do work on macOS with Apple Silicon, but they will run under Rosetta.
+- Signed binaries are not provided for macOS. This plugin will offer to de-quarantine the binaries for you, but please make sure you understand the consequences.
 
 # Dependencies
 
-- `bash`, `curl`, `tar`: generic POSIX utilities.
-- `SOME_ENV_VAR`: set this environment variable in your shell config to load the correct version of tool x.
+- `curl`, `jq`
+- `sha512sum` (optional, but recommended)
 
 # Install
 
-Plugin:
+This plugin supports multiple tools (similar to [asdf-hashicorp](https://github.com/asdf-community/asdf-hashicorp) and [asdf-pyapp](https://github.com/amrox/asdf-pyapp).
+
+| Tool         | Command to add Plugin                                                        |
+| ------------ | ---------------------------------------------------------------------------- |
+| clang-format | `asdf plugin add clang-format https://github.com/amrox/asdf-clang-tools.git` |
+| clang-query  | `asdf plugin add clang-query https://github.com/amrox/asdf-clang-tools.git`  |
+| clang-tidy   | `asdf plugin add clang-tidy https://github.com/amrox/asdf-clang-tools.git`   |
+
+
+Example:
 
 ```shell
-asdf plugin add clang-tools
-# or
-asdf plugin add clang-tools https://github.com/amrox/asdf-clang-tools.git
+asdf plugin add clang-format https://github.com/amrox/asdf-clang-tools.git
 ```
 
-clang-tools:
+clang-format:
 
 ```shell
 # Show all installable versions
-asdf list-all clang-tools
+asdf list-all clang-format
 
 # Install specific version
-asdf install clang-tools latest
+asdf install clang-format latest
 
 # Set a version globally (on your ~/.tool-versions file)
-asdf global clang-tools latest
+asdf global clang-format latest
 
 # Now clang-tools commands are available
 clang-format
@@ -48,6 +64,16 @@ clang-format
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to
 install & manage versions.
+
+# Configuration
+
+## Environment Variables
+
+- `ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE`: set to "1" to automatically de-quarantine binaries. Otherwise, it will interactively ask to do so.
+
+# Acknowledgements
+
+Thank you to the authors and contributors to [muttleyxd/clang-tools-static-binaries](https://github.com/muttleyxd/clang-tools-static-binaries).
 
 # Contributing
 
