@@ -1,9 +1,9 @@
 <div align="center">
 
-# asdf-clang-tools-static [![Build](https://github.com/amrox/asdf-clang-tools-static/actions/workflows/build.yml/badge.svg)](https://github.com/amrox/asdf-clang-tools-static/actions/workflows/build.yml) [![Lint](https://github.com/amrox/asdf-clang-tools-static/actions/workflows/lint.yml/badge.svg)](https://github.com/amrox/asdf-clang-tools-static/actions/workflows/lint.yml)
+# asdf-clang-tools [![Build](https://github.com/amrox/asdf-clang-tools/actions/workflows/build.yml/badge.svg)](https://github.com/amrox/asdf-clang-tools/actions/workflows/build.yml) [![Lint](https://github.com/amrox/asdf-clang-tools/actions/workflows/lint.yml/badge.svg)](https://github.com/amrox/asdf-clang-tools/actions/workflows/lint.yml)
 
 
-[clang-tools-static](https://github.com/amrox/clang-tools-static) plugin for the [asdf version manager](https://asdf-vm.com).
+[clang-tools](https://github.com/amrox/clang-tools) plugin for the [asdf version manager](https://asdf-vm.com).
 
 </div>
 
@@ -25,24 +25,24 @@
 Plugin:
 
 ```shell
-asdf plugin add clang-tools-static
+asdf plugin add clang-tools
 # or
-asdf plugin add clang-tools-static https://github.com/amrox/asdf-clang-tools-static.git
+asdf plugin add clang-tools https://github.com/amrox/asdf-clang-tools.git
 ```
 
-clang-tools-static:
+clang-tools:
 
 ```shell
 # Show all installable versions
-asdf list-all clang-tools-static
+asdf list-all clang-tools
 
 # Install specific version
-asdf install clang-tools-static latest
+asdf install clang-tools latest
 
 # Set a version globally (on your ~/.tool-versions file)
-asdf global clang-tools-static latest
+asdf global clang-tools latest
 
-# Now clang-tools-static commands are available
+# Now clang-tools commands are available
 clang-format
 ```
 
@@ -53,7 +53,7 @@ install & manage versions.
 
 Contributions of any kind welcome! See the [contributing guide](contributing.md).
 
-[Thanks goes to these contributors](https://github.com/amrox/asdf-clang-tools-static/graphs/contributors)!
+[Thanks goes to these contributors](https://github.com/amrox/asdf-clang-tools/graphs/contributors)!
 
 # License
 

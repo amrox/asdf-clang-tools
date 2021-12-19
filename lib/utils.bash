@@ -7,7 +7,7 @@ ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE=${ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE:-0}
 
 GH_REPO="muttleyxd/clang-tools-static-binaries"
 GH_REPO_URL="https://github.com/${GH_REPO}"
-PLUGIN_NAME="clang-tools-static"
+PLUGIN_NAME="clang-tools"
 USE_KERNEL=
 USE_ARCH=
 USE_PLATFORM=
@@ -35,7 +35,7 @@ log() {
 
 curl_opts=(-fsSL)
 
-# NOTE: You might want to remove this if clang-tools-static is not hosted on GitHub releases.
+# NOTE: You might want to remove this if clang-tools is not hosted on GitHub releases.
 if [ -n "${GITHUB_API_TOKEN:-}" ]; then
   curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
 fi
