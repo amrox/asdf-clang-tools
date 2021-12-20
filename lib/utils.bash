@@ -120,6 +120,25 @@ download_release() {
   )
 }
 
+check_shasum() {
+  local sha_cmd
+
+  if command -v sha512sum >/dev/null; then
+    sha_cmd=(sha512sum)
+  elif command -v shasum >/dev/null; then
+    sha_cmd=(shasum -a 512)
+  else
+    log "WARNING: sha512sum/shasum program not found - unable to checksum. Proceed with caution."
+    return 0
+  fi
+
+  (
+    log "Checking sha512 sum..."
+    cd "${ASDF_DOWNLOAD_PATH}" || exit 1
+    "${sha_cmd[@]}" -c ./*.sha512sum
+  )
+}
+
 install_version() {
   local toolname="$1"
   local install_type="$2"
@@ -132,15 +151,7 @@ install_version() {
     fail "asdf-$PLUGIN_NAME supports release installs only"
   fi
 
-  if command -v sha512sum >/dev/null; then
-    (
-      log "Checking sha512 sum..."
-      cd "${ASDF_DOWNLOAD_PATH}" || exit 1
-      sha512sum -c ./*.sha512sum
-    )
-  else
-    log "WARNING: sha512sum program not found - unable to checksum. Proceed with caution."
-  fi
+  check_shasum
 
   (
     local asset_path full_tool_cmd tool_cmd
