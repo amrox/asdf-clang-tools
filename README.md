@@ -70,6 +70,7 @@ install & manage versions.
 ## Environment Variables
 
 - `ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE`: set to "1" to automatically de-quarantine binaries. Otherwise, it will interactively ask to do so.
+- `ASDF_CLANG_TOOLS_LINUX_IGNORE_ARCH`: set to "1" to install the `amd64` binary regardless of the host architecture. The [clang-tools](https://github.com/muttleyxd/clang-tools-static-binaries) project does not currently provide `arm64`/`aarch64` Linux binaries. This assumes that you have set up [QEMU User Emulation](https://wiki.debian.org/QemuUserEmulation) (or similar) to run foreign binaries under emulation.
 
 # Acknowledgements
 

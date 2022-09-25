@@ -4,6 +4,7 @@ set -euo pipefail
 
 # Settings
 ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE=${ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE:-0}
+ASDF_CLANG_TOOLS_LINUX_IGNORE_ARCH=${ASDF_CLANG_TOOLS_LINUX_IGNORE_ARCH:-0}
 
 GH_REPO="muttleyxd/clang-tools-static-binaries"
 PLUGIN_NAME="clang-tools"
@@ -65,17 +66,27 @@ validate_platform() {
     USE_ARCH=amd64
     ;;
   Linux)
-    case $arch in
-    x86_64)
-      USE_KERNEL=linux
+    USE_KERNEL=linux
+    if [ "$ASDF_CLANG_TOOLS_LINUX_IGNORE_ARCH" != 0 ]; then
       USE_ARCH=amd64
-      ;;
-    esac
+      log "ASDF_CLANG_TOOLS_LINUX_IGNORE_ARCH is set - using '$USE_ARCH' binary."
+    else
+      case $arch in
+      x86_64)
+        USE_ARCH=amd64
+        ;;
+      esac
+    fi
     ;;
   esac
 
   if [ -z "${USE_KERNEL}" ] || [ -z "${USE_ARCH}" ]; then
-    fail "Unsupported platform '${kernel}-${arch}'"
+    local msg="Unsupported platform '${kernel}-${arch}'."
+    if [ "$USE_KERNEL" = "linux" ]; then
+      msg="${msg}\n\nSee the 'ASDF_CLANG_TOOLS_LINUX_IGNORE_ARCH' setting."
+    fi
+
+    fail "$msg"
   fi
 
   USE_PLATFORM="${USE_KERNEL}-${USE_ARCH}"
