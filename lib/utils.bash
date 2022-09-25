@@ -6,7 +6,6 @@ set -euo pipefail
 ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE=${ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE:-0}
 
 GH_REPO="muttleyxd/clang-tools-static-binaries"
-GH_REPO_URL="https://github.com/${GH_REPO}"
 PLUGIN_NAME="clang-tools"
 USE_KERNEL=
 USE_ARCH=
