@@ -201,9 +201,14 @@ install_version() {
         log "$toolname needs to be de-quarantined to run:\n\n"
         echo -e "  xattr -dr com.apple.quarantine \"${asset_path}/${full_tool_cmd}\""
         echo -e -n "\n\nProceed? [y/N] "
-        read -r reply
-        if [[ $reply =~ $YES_REGEX ]]; then
-          ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE=1
+        # Try /dev/tty first (for asdf contexts), fallback to stdin (for tests)
+        reply=""
+        if read -r reply </dev/tty 2>/dev/null || read -r reply; then
+          if [[ $reply =~ $YES_REGEX ]]; then
+            ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE=1
+          else
+            exit 1
+          fi
         else
           exit 1
         fi
