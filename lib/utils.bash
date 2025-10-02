@@ -196,7 +196,7 @@ install_version() {
     mkdir -p "${install_path}/bin" || true
     ln -s "${asset_path}/${full_tool_cmd}" "$install_path/bin/$tool_cmd"
 
-    if [ "$USE_KERNEL" == "macosx" ]; then
+    if [[ "$USE_KERNEL" == macos* ]]; then
       if [ "$ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE" != 1 ]; then
         log "$toolname needs to be de-quarantined to run:\n\n"
         echo -e "  xattr -dr com.apple.quarantine \"${asset_path}/${full_tool_cmd}\""
@@ -207,10 +207,10 @@ install_version() {
         else
           exit 1
         fi
+      fi
 
-        if [ "$ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE" == 1 ]; then
-          xattr -dr com.apple.quarantine "${asset_path}/${full_tool_cmd}"
-        fi
+      if [ "$ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE" == 1 ]; then
+        xattr -dr com.apple.quarantine "${asset_path}/${full_tool_cmd}"
       fi
     fi
 

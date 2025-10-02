@@ -73,6 +73,23 @@ install & manage versions.
 - `ASDF_CLANG_TOOLS_MACOS_IGNORE_ARCH`: set to "1" to install the `amd64` binary regardless of the host architecture on Mac OS.
 - `ASDF_CLANG_TOOLS_LINUX_IGNORE_ARCH`: set to "1" to install the `amd64` binary regardless of the host architecture. The [clang-tools](https://github.com/muttleyxd/clang-tools-static-binaries) project does not currently provide `arm64`/`aarch64` Linux binaries. This assumes that you have set up [QEMU User Emulation](https://wiki.debian.org/QemuUserEmulation) (or similar) to run foreign binaries under emulation.
 
+# Testing
+
+## Dequarantine Test (macOS only)
+
+To verify that the dequarantine functionality works correctly on both Intel and Apple Silicon Macs, run:
+
+```shell
+./tests/test_dequarantine.bash
+```
+
+This test will:
+- Simulate the installation process for both `macosx` and `macos-arm` platforms
+- Verify that quarantine attributes are correctly removed when `ASDF_CLANG_TOOLS_MACOS_DEQUARANTINE=1`
+- Test both automatic and interactive dequarantine modes
+
+The test creates temporary directories and dummy files, so it won't affect your actual installations.
+
 # Acknowledgements
 
 Thank you to the authors and contributors to [muttleyxd/clang-tools-static-binaries](https://github.com/muttleyxd/clang-tools-static-binaries).
